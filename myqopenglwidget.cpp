@@ -80,21 +80,37 @@ void MyQOpenGLWidget::drawUmbrella(){
     vector<GLfloat> stick = umbrella->getStick();
     vector <int> stickIdx = umbrella->getStickIdx();
 
+    vector <GLfloat> slat = umbrella->getSlat();
+    vector <int> slatIdx = umbrella->getSlatIdx();
+
+    vector <GLfloat> riv = umbrella->getRivet();
+    vector <int> rivIdx = umbrella->getRivetIdx();
+
     m_program->setUniformValue("col", 0.51f,0.78f, 0.6f, 1.0f);
 
    for (int i = 0; i<14; i++){
         m_program->setUniformValue("col", colors[i]);
         matrixR.rotate(25.7, 0.0, 0.0, 1.0);
         m_program->setUniformValue("matrixR", matrixR);
-
+//sectors
         glEnableVertexAttribArray(m_posAttr);
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &sec[0]);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, sec.size()/3);
 
+//sticks
         m_program->setUniformValue("col", 0.2f, 0.1f, 0.0f, 1.0f);
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &stick[0]);
         glDrawElements(GL_TRIANGLE_STRIP,stickIdx.size(),GL_UNSIGNED_INT, &stickIdx[0]);
-        // glDrawArrays(GL_TRIANGLE_STRIP, 0, stick.size()/3);
+
+//slats
+        glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &slat[0]);
+        glDrawElements(GL_TRIANGLE_STRIP,slatIdx.size(),GL_UNSIGNED_INT, &slatIdx[0]);
+
+//rivets
+        m_program->setUniformValue("col", 0.5f, 0.8f, 0.8f, 1.0f);
+        glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &riv[0]);
+        glDrawElements(GL_TRIANGLE_STRIP,rivIdx.size(),GL_UNSIGNED_INT, &rivIdx[0]);
+
         glDisableVertexAttribArray(m_posAttr);
   }
         m_program->release();
