@@ -22,11 +22,27 @@ class Umbrella
             z=c;
         }
     };
+
      int step;
      vector <Point> sector;
      vector <Point> stick;
      vector <Point> slat;
      vector <Point> rivet;
+     vector <Point> wand;
+
+     vector <GLfloat> sectorPts;
+
+     vector <GLfloat> stickPts;
+     vector <int> stickIdx;
+
+     vector <GLfloat> slatPts;
+     vector <int> slatIdx;
+
+     vector <GLfloat> rivetPts;
+     vector <int> rivetIdx;
+
+     vector <GLfloat> wandPts;
+     vector <int> wandIdx;
 
      Point getPoint(Point center, float radius, float theta, float phi);
 protected:
@@ -34,10 +50,15 @@ protected:
       void genStick(Point center);
       void genSlat();
       void genRivet(Point center);
+      void genWand();
 public:
     Umbrella(int a);
 
+    vector <GLfloat> getWand();
+    vector <int> getWandIdx();
+
     vector <GLfloat> getSector();
+
     vector<GLfloat> getStick();
     vector <int> getStickIdx();
 
@@ -46,6 +67,8 @@ public:
 
     vector <int> getRivetIdx();
     vector <GLfloat> getRivet();
+
+    void initVectors();
 };
 
 #endif // UMBRELLA_H

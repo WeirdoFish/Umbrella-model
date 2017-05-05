@@ -6,6 +6,8 @@ Umbrella::Umbrella(int a){
     step = 20;
     genSector();
     genSlat();
+    genWand();
+    initVectors();
 }
 
 Umbrella::Point  Umbrella::getPoint(Point center, float radius, float theta, float phi){
@@ -75,6 +77,84 @@ void  Umbrella::genRivet(Point center){
     }
 }
 
+void Umbrella::genWand(){
+    Point center = Point(0,0,0.53);
+    float radius = 0.005;
+    float theta = pi/4.0f;
+    wand.clear();
+
+    for (float j = 0; j< 2.0f*pi; j+=2.0f*pi/(float)step){
+        wand.push_back(getPoint(center,radius, theta, j));
+    }
+
+    int i = 0;
+    while (wand[wand.size()-1].z>0.37){
+        Point nextPoint = Point();
+        nextPoint.z=wand[i].z - 0.0052;
+        nextPoint.y=wand[i].y;
+        nextPoint.x=wand[i].x;
+
+        wand.push_back(nextPoint);
+        i++;
+    }
+
+//крепление 1
+    center = Point(0,0,0.37);
+    radius = 0.011;
+
+    for (float j = 0; j< 2.0f*pi; j+=2.0f*pi/(float)step){
+        wand.push_back(getPoint(center,radius, theta, j));
+    }
+
+    i+=step;
+        while (wand[wand.size()-1].z>0.35){
+            Point nextPoint = Point();
+            nextPoint.z=wand[i].z - 0.0052;
+            nextPoint.y=wand[i].y;
+            nextPoint.x=wand[i].x;
+
+            wand.push_back(nextPoint);
+            i++;
+        }
+//крепление 2
+      center = Point(0,0,0.35);
+        radius = 0.008;
+
+        for (float j = 0; j< 2.0f*pi; j+=2.0f*pi/(float)step){
+            wand.push_back(getPoint(center,radius, theta, j));
+        }
+
+        i+=step;
+            while (wand[wand.size()-1].z>0.32){
+                Point nextPoint = Point();
+                nextPoint.z=wand[i].z - 0.0052;
+                nextPoint.y=wand[i].y;
+                nextPoint.x=wand[i].x;
+
+                wand.push_back(nextPoint);
+                i++;
+            }
+//палка дальше
+            center = Point(0,0,0.32);
+            radius = 0.005;
+
+            for (float j = 0; j< 2.0f*pi; j+=2.0f*pi/(float)step){
+                wand.push_back(getPoint(center,radius, theta, j));
+            }
+
+            i+=step;
+                while (wand[wand.size()-1].z>0){
+                    Point nextPoint = Point();
+                    nextPoint.z=wand[i].z - 0.0052;
+                    nextPoint.y=wand[i].y;
+                    nextPoint.x=wand[i].x;
+
+                    wand.push_back(nextPoint);
+                    i++;
+                }
+
+
+}
 
 void  Umbrella::genStick(Point center){
     center.x-=0.003;
@@ -127,70 +207,79 @@ void Umbrella::genSlat(){
 }
 
 
-vector<int> Umbrella::getSlatIdx(){
-    vector<int> idx;
+vector <GLfloat> Umbrella::getSector(){return  sectorPts;}
+vector<int> Umbrella::getSlatIdx(){  return slatIdx;}
+vector <GLfloat> Umbrella::getSlat(){return  slatPts;}
+vector <int> Umbrella::getRivetIdx(){ return rivetIdx;}
+vector <GLfloat> Umbrella::getRivet(){ return rivetPts;}
+vector<GLfloat>  Umbrella::getStick(){  return  stickPts;}
+vector <int> Umbrella::getStickIdx(){ return stickIdx;}
+vector <GLfloat> Umbrella::getWand(){ return wandPts; }
+vector <int> Umbrella::getWandIdx() {return wandIdx;}
+
+void Umbrella::initVectors(){
+ //slat
         for (int i = 0; i<(slat.size()-step); i++){
-            idx.push_back(i);
-            idx.push_back(i+step);
+            slatIdx.push_back(i);
+            slatIdx.push_back(i+step);
         }
-    return idx;
-}
 
-vector <int> Umbrella::getStickIdx(){
-    vector<int> idx;
-        for (int i = 0; i<(stick.size()-step); i++){
-            idx.push_back(i);
-            idx.push_back(i+step);
+        for (Point p : slat) {
+            slatPts.push_back(p.x);
+            slatPts.push_back(p.y);
+            slatPts.push_back(p.z);
         }
-    return idx;
-}
-
-vector <int> Umbrella::getRivetIdx(){
-    vector<int> idx;
+//rivet
         for (int i = 0; i<(rivet.size()-step); i++){
-            idx.push_back(i);
-            idx.push_back(i+step);
+            rivetIdx.push_back(i);
+            rivetIdx.push_back(i+step);
         }
-    return idx;
+
+        for (Point p : rivet) {
+            rivetPts.push_back(p.x);
+            rivetPts.push_back(p.y);
+            rivetPts.push_back(p.z);
+        }
+ //stick
+        for (Point p : stick) {
+            stickPts.push_back(p.x);
+            stickPts.push_back(p.y);
+            stickPts.push_back(p.z);
+        }
+
+        for (int i = 0; i<(stick.size()-step); i++){
+            stickIdx.push_back(i);
+            stickIdx.push_back(i+step);
+        }
+
+//sector
+        for (Point p: sector) {
+            sectorPts.push_back(p.x);
+            sectorPts.push_back(p.y);
+            sectorPts.push_back(p.z);
+        }
+//цфтв
+        for (Point p : wand) {
+             wandPts.push_back(p.x);
+             wandPts.push_back(p.y);
+             wandPts.push_back(p.z);
+          }
+
+        for (int i = 0; i<(wand.size()-step); i++){
+             wandIdx.push_back(i);
+             wandIdx.push_back(i+step);
+         }
+
 }
 
-vector<GLfloat>  Umbrella::getStick(){
-  vector <GLfloat> pts;
-    for (Point p : stick) {
-        pts.push_back(p.x);
-        pts.push_back(p.y);
-        pts.push_back(p.z);
-    }
-    return  pts;
-}
 
-vector <GLfloat> Umbrella::getSector(){
 
-    vector <GLfloat> pts;
-    for (Point p: sector) {
-        pts.push_back(p.x);
-        pts.push_back(p.y);
-        pts.push_back(p.z);
-    }
-    return  pts;
-}
 
-vector <GLfloat> Umbrella::getSlat(){
-    vector <GLfloat> pts;
-    for (Point p : slat) {
-        pts.push_back(p.x);
-        pts.push_back(p.y);
-        pts.push_back(p.z);
-    }
-    return  pts;
-}
 
-vector <GLfloat> Umbrella::getRivet(){
-    vector <GLfloat> pts;
-    for (Point p : rivet) {
-        pts.push_back(p.x);
-        pts.push_back(p.y);
-        pts.push_back(p.z);
-    }
-    return  pts;
-}
+
+
+
+
+
+
+

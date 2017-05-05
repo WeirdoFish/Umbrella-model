@@ -113,6 +113,16 @@ void MyQOpenGLWidget::drawUmbrella(){
 
         glDisableVertexAttribArray(m_posAttr);
   }
+
+   vector <GLfloat> wand = umbrella->getWand();
+   vector <int> wandIdx = umbrella->getWandIdx();
+
+   glEnableVertexAttribArray(m_posAttr);
+   m_program->setUniformValue("col", 0.0f, 0.0f, 0.0f, 1.0f);
+   glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &wand[0]);
+   glDrawElements(GL_TRIANGLE_STRIP,wandIdx.size(),GL_UNSIGNED_INT, &wandIdx[0]);
+   glDisableVertexAttribArray(m_posAttr);
+
         m_program->release();
 }
 
