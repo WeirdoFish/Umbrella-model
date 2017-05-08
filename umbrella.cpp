@@ -10,6 +10,7 @@ Umbrella::Umbrella(int a){
     genSlat();
     genWand();
     initVectors();
+    initNorms();
 }
 
 float Umbrella::Point::length(const Point b){
@@ -317,7 +318,10 @@ vector<GLfloat>  Umbrella::getStick(){  return  stickPts;}
 vector <int> Umbrella::getStickIdx(){ return stickIdx;}
 vector <GLfloat> Umbrella::getWand(){ return wandPts; }
 vector <int> Umbrella::getWandIdx() {return wandIdx;}
-vector <GLfloat> Umbrella::getSecMormals() { return secNorm; }
+vector <GLfloat> Umbrella::getSecNormals() { return secNorm; }
+vector <GLfloat> Umbrella::getSlatNormals() { return slatNorm; }
+vector <GLfloat> Umbrella::getRivetNormals() { return rivNorm; }
+vector <GLfloat> Umbrella::getWandNormals() { return wandNorm; }
 
 void Umbrella::initVectors(){
  //slat
@@ -361,25 +365,7 @@ void Umbrella::initVectors(){
             sectorPts.push_back(p.z);
         }
 
-        for (int i = 1; i< sector.size()-1; i++){
-             Point a,b;
-            if (i%2==0){
-                a = Point (sector[i].x-sector[i-1].x, sector[i].y-sector[i-1].y, sector[i].z-sector[i-1].z);
-                b = Point (sector[i].x-sector[i+1].x, sector[i].y-sector[i+1].y, sector[i].z-sector[i+1].z);
-            } else {
-                a = Point (sector[i].x-sector[i-1].x, sector[i].y-sector[i-1].y, sector[i].z-sector[i-1].z);
-                b = Point (sector[i+1].x-sector[i].x, sector[i+1].y-sector[i].y, sector[i+1].z-sector[i].z);
-            }
-            Point n = Point (a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
-            float length = sqrt(pow(n.x,2)+pow(n.y,2) + pow(n.z,2));
-            n.x /= length;
-            n.y /= length;
-            n.z /= length;
-            secNorm.push_back(n.x);
-            secNorm.push_back(n.y);
-            secNorm.push_back(n.z);
-            std::cout << n.x << ":" << n.y << ":" << n.z << "\n";
-        }
+
 //цфтв
         for (Point p : wand) {
              wandPts.push_back(p.x);
@@ -392,6 +378,52 @@ void Umbrella::initVectors(){
              wandIdx.push_back(i+step);
          }
 
+}
+
+void Umbrella::initNorms(){
+    for (int i = 1; i< sector.size()-1; i++){
+         Point a,b;
+        if (i%2==0){
+            a = Point (sector[i].x-sector[i-1].x, sector[i].y-sector[i-1].y, sector[i].z-sector[i-1].z);
+            b = Point (sector[i].x-sector[i+1].x, sector[i].y-sector[i+1].y, sector[i].z-sector[i+1].z);
+        } else {
+            a = Point (sector[i].x-sector[i-1].x, sector[i].y-sector[i-1].y, sector[i].z-sector[i-1].z);
+            b = Point (sector[i+1].x-sector[i].x, sector[i+1].y-sector[i].y, sector[i+1].z-sector[i].z);
+        }
+        Point n = Point (a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
+        float length = sqrt(pow(n.x,2)+pow(n.y,2) + pow(n.z,2));
+        n.x /= length;
+        n.y /= length;
+        n.z /= length;
+        secNorm.push_back(n.x);
+        secNorm.push_back(n.y);
+        secNorm.push_back(n.z);
+       // std::cout << n.x << ":" << n.y << ":" << n.z << "\n";
+    }
+
+    for (int i = 0; i< stickIdx.size()-1; i+=2){
+        Point a,b;
+        int cur = stickIdx[i];
+
+        a = Point (stick[cur].x-stick[cur+1].x, stick[cur].y-stick[cur+1].y, stick[cur].z-stick[cur+1].z);
+        b = Point (stick[cur].x-stick[cur+2].x, stick[cur].y-stick[cur+2].y, stick[cur].z-stick[cur+2].z);
+
+        Point n = Point (a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
+        float length = sqrt(pow(n.x,2)+pow(n.y,2) + pow(n.z,2));
+        n.x /= length;
+        n.y /= length;
+        n.z /= length;
+        stickNorm.push_back(n.x);
+        stickNorm.push_back(n.y);
+        stickNorm.push_back(n.z);
+       // std::cout << n.x << ":" << n.y << ":" << n.z << "\n";
+    }
+    int k = stickNorm.size();
+    for (int i = k  - step*3; i<k; i++){
+         stickNorm.push_back(stickNorm[i]);
+    }
+
+std::cout <<"";
 }
 
 

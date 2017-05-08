@@ -47,6 +47,10 @@ class Umbrella
      vector <int> wandIdx;
 
      vector <GLfloat> secNorm;
+     vector <GLfloat> stickNorm;
+     vector <GLfloat> slatNorm;
+     vector <GLfloat> rivNorm;
+     vector <GLfloat> wandNorm;
 
      Point getPoint(Point center, float radius, float theta, float phi);
 protected:
@@ -56,6 +60,7 @@ protected:
       void genRivet(Point center);
       void genWand();
       void initVectors();
+      void initNorms();
 
 public:
     Umbrella(int a);
@@ -74,7 +79,11 @@ public:
     vector <int> getRivetIdx();
     vector <GLfloat> getRivet();
 
-    vector <GLfloat> getSecMormals();
+    vector <GLfloat> getSecNormals();
+    vector <GLfloat> getStickNormals();
+    vector <GLfloat> getRivetNormals();
+    vector <GLfloat> getSlatNormals();
+    vector <GLfloat> getWandNormals();
 };
 
 #endif // UMBRELLA_H

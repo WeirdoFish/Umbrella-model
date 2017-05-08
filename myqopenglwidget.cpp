@@ -79,9 +79,11 @@ void MyQOpenGLWidget::render(){
 
 void MyQOpenGLWidget::drawUmbrella(){
     vector<GLfloat> sec= umbrella->getSector();
-    vector<GLfloat> secMormals= umbrella->getSecMormals();
+    vector<GLfloat> secNormals= umbrella->getSecNormals();
+
     vector<GLfloat> stick = umbrella->getStick();
     vector <int> stickIdx = umbrella->getStickIdx();
+    vector<GLfloat> stickNormals= umbrella->getStickNormals();
 
     vector <GLfloat> slat = umbrella->getSlat();
     vector <int> slatIdx = umbrella->getSlatIdx();
@@ -99,13 +101,18 @@ void MyQOpenGLWidget::drawUmbrella(){
         glEnableVertexAttribArray(m_posAttr);
         glEnableVertexAttribArray(m_normAttr);
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &sec[0]);
-        glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &secMormals[0]);
+        glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &secNormals[0]);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, sec.size()/3);
-        glDisableVertexAttribArray(m_normAttr);
+        //glDisableVertexAttribArray(m_normAttr);
+
 //sticks
-        m_program->setUniformValue("col", 0.2f, 0.1f, 0.0f, 1.0f);
+
+      //  m_program->setUniformValue("col", 0.2f, 0.1f, 0.0f, 1.0f);
+        m_program->setUniformValue("col", 0.89f, 0.8f, 0.8f, 1.0f);
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &stick[0]);
+        glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &stickNormals[0]);
         glDrawElements(GL_TRIANGLE_STRIP,stickIdx.size(),GL_UNSIGNED_INT, &stickIdx[0]);
+        glDisableVertexAttribArray(m_normAttr);
 
 //slats
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &slat[0]);
@@ -117,13 +124,14 @@ void MyQOpenGLWidget::drawUmbrella(){
         glDrawElements(GL_TRIANGLE_STRIP,rivIdx.size(),GL_UNSIGNED_INT, &rivIdx[0]);
 
         glDisableVertexAttribArray(m_posAttr);
+
   }
 
    vector <GLfloat> wand = umbrella->getWand();
    vector <int> wandIdx = umbrella->getWandIdx();
 
    glEnableVertexAttribArray(m_posAttr);
-   m_program->setUniformValue("col", 0.0f, 0.0f, 0.0f, 1.0f);
+   m_program->setUniformValue("col", 0.2f, 0.1f, 0.0f, 1.0f);
    glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &wand[0]);
    glDrawElements(GL_TRIANGLE_STRIP,wandIdx.size(),GL_UNSIGNED_INT, &wandIdx[0]);
    //glDrawArrays(GL_POINTS,0, wand.size()/3);
