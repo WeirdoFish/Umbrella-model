@@ -22,6 +22,7 @@ private:
 
     GLuint m_posAttr;
     GLuint m_colAttr;
+    GLuint m_normAttr;
     GLuint m_matrixUniform;
 
     QOpenGLShaderProgram *m_program;

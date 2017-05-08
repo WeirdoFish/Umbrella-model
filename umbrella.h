@@ -21,7 +21,9 @@ class Umbrella
             y=b;
             z=c;
         }
-    };
+
+        float length(const Point b);
+     };
 
      int step;
      vector <Point> sector;
@@ -44,6 +46,8 @@ class Umbrella
      vector <GLfloat> wandPts;
      vector <int> wandIdx;
 
+     vector <GLfloat> secNorm;
+
      Point getPoint(Point center, float radius, float theta, float phi);
 protected:
       void genSector();
@@ -51,6 +55,8 @@ protected:
       void genSlat();
       void genRivet(Point center);
       void genWand();
+      void initVectors();
+
 public:
     Umbrella(int a);
 
@@ -68,7 +74,7 @@ public:
     vector <int> getRivetIdx();
     vector <GLfloat> getRivet();
 
-    void initVectors();
+    vector <GLfloat> getSecMormals();
 };
 
 #endif // UMBRELLA_H

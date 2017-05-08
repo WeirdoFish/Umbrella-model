@@ -34,6 +34,7 @@ MyQOpenGLWidget::MyQOpenGLWidget(QWidget *parent)  : QGLWidget(parent){
 
 void MyQOpenGLWidget::paintGL(){
 
+    glEnable( GL_PROGRAM_POINT_SIZE );
     glClearColor(0, 0.2, 0.2,1);
     glClear(GL_COLOR_BUFFER_BIT);
     render();
@@ -73,10 +74,12 @@ void MyQOpenGLWidget::render(){
          glDisableVertexAttribArray(m_posAttr);
 
          drawUmbrella();
+         m_program->release();
 }
 
 void MyQOpenGLWidget::drawUmbrella(){
     vector<GLfloat> sec= umbrella->getSector();
+    vector<GLfloat> secMormals= umbrella->getSecMormals();
     vector<GLfloat> stick = umbrella->getStick();
     vector <int> stickIdx = umbrella->getStickIdx();
 
@@ -94,9 +97,11 @@ void MyQOpenGLWidget::drawUmbrella(){
         m_program->setUniformValue("matrixR", matrixR);
 //sectors
         glEnableVertexAttribArray(m_posAttr);
+        glEnableVertexAttribArray(m_normAttr);
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &sec[0]);
+        glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &secMormals[0]);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, sec.size()/3);
-
+        glDisableVertexAttribArray(m_normAttr);
 //sticks
         m_program->setUniformValue("col", 0.2f, 0.1f, 0.0f, 1.0f);
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &stick[0]);
@@ -107,7 +112,7 @@ void MyQOpenGLWidget::drawUmbrella(){
         glDrawElements(GL_TRIANGLE_STRIP,slatIdx.size(),GL_UNSIGNED_INT, &slatIdx[0]);
 
 //rivets
-        m_program->setUniformValue("col", 0.5f, 0.8f, 0.8f, 1.0f);
+        m_program->setUniformValue("col", 0.99f, 0.86f, 0.45f, 1.0f);
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &riv[0]);
         glDrawElements(GL_TRIANGLE_STRIP,rivIdx.size(),GL_UNSIGNED_INT, &rivIdx[0]);
 
@@ -121,9 +126,9 @@ void MyQOpenGLWidget::drawUmbrella(){
    m_program->setUniformValue("col", 0.0f, 0.0f, 0.0f, 1.0f);
    glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &wand[0]);
    glDrawElements(GL_TRIANGLE_STRIP,wandIdx.size(),GL_UNSIGNED_INT, &wandIdx[0]);
+   //glDrawArrays(GL_POINTS,0, wand.size()/3);
    glDisableVertexAttribArray(m_posAttr);
 
-        m_program->release();
 }
 
 void MyQOpenGLWidget::resizeGL(int w, int h){
@@ -144,6 +149,7 @@ void MyQOpenGLWidget::initializeGL(){
 
      m_program->link();
      m_posAttr = m_program->attributeLocation("posAttr");
+     m_normAttr = m_program->attributeLocation("normAttr");
      m_colAttr = m_program->attributeLocation("colAttr");
      glEnable(GL_PROGRAM_POINT_SIZE);
 
@@ -173,7 +179,7 @@ void MyQOpenGLWidget::mouseMoveEvent(QMouseEvent *event){
 
 void MyQOpenGLWidget::keyPressEvent(QKeyEvent *event){
 
-        this->updateGL();
+    //    this->updateGL();
   }
 
 void MyQOpenGLWidget::checkX(){
