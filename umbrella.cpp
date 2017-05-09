@@ -86,7 +86,7 @@ void  Umbrella::genRivet(Point center){
         i++;
     }
     int n = rivet.size()-step;
-
+    center.z=rivet[i].z;
     for (int i =0; i<step; i++){
             rivet.push_back(center);
             rivet.push_back(rivet[n+i]);
@@ -95,20 +95,20 @@ void  Umbrella::genRivet(Point center){
 
 void Umbrella::genWand(){
     Point center = Point(0,0,0.53);
-    float radius = 0.005;
+    float radius = 0.006;
     float theta = pi/4.0f;
     wand.clear();
 
    // wand.push_back(center);
-  /*  for (float j = 0; j< 2.0f*pi; j+=2.0f*pi/(float)step){
-        wand.push_back(getPoint(center,radius/0.5, theta, j));
+    for (float j = 0; j< 2.0f*pi; j+=2.0f*pi/(float)step){
+        wand.push_back(getPoint(center,radius/100.0, theta, j));
      }
-*/
+
     for (float j = 0; j< 2.0f*pi; j+=2.0f*pi/(float)step){
         wand.push_back(getPoint(center,radius, theta, j));
     }
 
-    int i = 0;
+    int i = step;
     while (wand[wand.size()-1].z>0.37){
         Point nextPoint = Point();
         nextPoint.z=wand[i].z - 0.0052;
@@ -118,7 +118,8 @@ void Umbrella::genWand(){
         wand.push_back(nextPoint);
         i++;
     }
-  //  wand.pop_back();
+    i--;
+    wand.pop_back();
 
 //крепление 1
     center = Point(0,0,0.37);
@@ -138,7 +139,8 @@ void Umbrella::genWand(){
             wand.push_back(nextPoint);
             i++;
         }
-        // wand.pop_back();
+        i--;
+        wand.pop_back();
 //крепление 2
       center = Point(0,0,0.35);
         radius = 0.008;
@@ -157,7 +159,8 @@ void Umbrella::genWand(){
                 wand.push_back(nextPoint);
                 i++;
             }
-            // wand.pop_back();
+            i--;
+            wand.pop_back();
 //палка дальше
             center = Point(0,0,0.32);
             radius = 0.005;
@@ -176,7 +179,8 @@ void Umbrella::genWand(){
                     wand.push_back(nextPoint);
                     i++;
                 }
-                // wand.pop_back();
+                i--;
+                wand.pop_back();
 
 //ещё палка
                 center = Point(0,0,0.06);
@@ -232,6 +236,16 @@ void Umbrella::genWand(){
                         i++;
                     }
                 }
+
+
+                int n = wand.size()-step;
+                center.x-=radius;
+                center.z=wand[i].z;
+                for (int i =0; i<step; i++){
+                        wand.push_back(center);
+                        wand.push_back(wand[n+i]);
+                }
+
 
 }
 

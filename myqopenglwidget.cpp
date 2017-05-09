@@ -7,14 +7,17 @@ using std::cout;
 
 MyQOpenGLWidget::MyQOpenGLWidget(QWidget *parent)  : QGLWidget(parent){
       setFocusPolicy(Qt::StrongFocus);
-      matrixP.perspective(40.0f, 4.0f/3.0f, 0.1f, 100.0f);
+      matrixP.setToIdentity();
+      matrixP.perspective(30.0f, 16.0f/9.0f, 0.1f, 100.0f);
+      //matrixP.ortho(-1,1,-1,1,0.1f,1000.0f);
       matrixT.translate(0.0, 0.0,0.0);
-      matrixR.rotate(30.0,1.0,0.0,0.0);
       matrixS.scale(1.0);
-      viewPoint = QVector3D(2.0f,-1.5f,1.6f);
+      position = QVector3D(1.68f,0.47f,-0.49f);
       movingEnabled=false;
       axis='x';
       umbrella = new Umbrella(9);
+      horizontalAngle = 5.02;
+      verticalAngle = -0.31;
       colors[0] = QColor(255,56,0);
       colors[1] = QColor(255,112,0);
       colors[2] = QColor(255,160,0);
@@ -29,52 +32,50 @@ MyQOpenGLWidget::MyQOpenGLWidget(QWidget *parent)  : QGLWidget(parent){
       colors[11] = QColor(15,79,168);
       colors[12] = QColor(112,10,170);
       colors[13] = QColor(204,0,114);
+
+      lightSourse = QVector3D(10.0,0.0,0.5);
 }
 
 void MyQOpenGLWidget::paintGL(){
-
+    //std::cout << position.x() << " " << position.y() << " " << position.z() <<"\n";
     calculateMatrix();
     glEnable( GL_PROGRAM_POINT_SIZE );
    // glClearColor(0, 0.2, 0.2,1);
-     glClearColor(1, 1, 1,1);
+     glClearColor(0.89, 1, 1,1);
     glClear(GL_COLOR_BUFFER_BIT);
     render();
 }
 
 void MyQOpenGLWidget::render(){
+    //qDebug() << direction.x() <<  " " << direction.y() << " " << direction.z();
+   // qDebug() << horizontalAngle <<  " " << verticalAngle;
+    // qDebug() << position.x() <<  " " << position.y() << " " << position.z();
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     const qreal retinaScale = devicePixelRatio();
     glViewport(0, 0, width() * retinaScale, height() * retinaScale);
     m_program->bind();
-
+    matrixR.setToIdentity();
     m_program->setUniformValue("matrixP", matrixP);
     m_program->setUniformValue("matrixT", matrixT);
     m_program->setUniformValue("matrixR", matrixR);
     m_program->setUniformValue("matrixS", matrixS);
     m_program->setUniformValue("matrixV", matrixV);
 
-    //axis
+    //grass surface
 
-        float arr[]  = {0.0, 0.8, 0.0,  0.0,0.0,0.0,   0.0, 0.0, 0.8,  0.0,0.0,0.0,      0.8, 0.0, 0.0, 0.0,0.0,0.0, };
+        float arr[]  = {-0.5, -0.03, -0.5,  -0.5,-0.03,0.5,   0.5, -0.03, -0.5,  0.5,-0.03,0.5};
+         matrixS.scale(500.0);
 
+         m_program->setUniformValue("matrixS", matrixS);
          glEnableVertexAttribArray(m_posAttr);
-         m_program->setUniformValue("col", 1.0f,0.0f, 0.0f, 1.0f);
+         m_program->setUniformValue("col", 0.69f,0.87f, 0.54f, 1.0f);
          glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &arr[0]);
-         glDrawArrays(GL_LINE_STRIP, 0, 2);
-
-
-         m_program->setUniformValue("col", 1.0f,1.0f, 0.0f, 1.0f);
-         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &arr[0]);
-         glDrawArrays(GL_LINE_STRIP, 3, 2);
-
-
-         m_program->setUniformValue("col", 0.0f,1.0f, 0.0f, 1.0f);
-         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &arr[0]);
-         glDrawArrays(GL_LINE_STRIP, 7, 2);
+         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
          glDisableVertexAttribArray(m_posAttr);
+         matrixS.setToIdentity();
 
-
+         m_program->setUniformValue("matrixS", matrixS);
          drawUmbrella();
          m_program->release();
 }
@@ -94,6 +95,11 @@ void MyQOpenGLWidget::drawUmbrella(){
     vector <GLfloat> riv = umbrella->getRivet();
     vector <int> rivIdx = umbrella->getRivetIdx();
     vector<GLfloat> rivNormals= umbrella->getRivetNormals();
+
+
+    matrixR.rotate(41.0,-1.0,0.0,0.0);
+    matrixR.rotate(-30.0,0.0,0.0,1.0);
+
 
     m_program->setUniformValue("col", 0.51f,0.78f, 0.6f, 1.0f);
 
@@ -176,25 +182,19 @@ void MyQOpenGLWidget::initializeGL(){
 }
 
 void MyQOpenGLWidget::mousePressEvent ( QMouseEvent * event ){
-    double curX = (event->x()-350)/350.0;
-    double curY = -(event->y()-350)/350.0;
-    movingEnabled=!movingEnabled;
-    std::cout<<curX << ' ' << curY << std::endl;
-
-    this->updateGL();
+    prevX = event->x();
+    prevY = event->y();
+   // this->updateGL();
 }
 
 void MyQOpenGLWidget::mouseMoveEvent(QMouseEvent *event){
-    event->globalX();
-    double curX = (event->x()-350)/350.0;
-    double curY = -(event->y()-350)/350.0;
     if (event->buttons()==Qt::LeftButton){
-        diffX = - prevX + event->x();
+        diffX = prevX - event->x();
         diffY = prevY - event->y();
         prevX = event->x();
         prevY = event->y();
 
-        update();
+        this->updateGL();
     }
 
   }
@@ -210,20 +210,28 @@ void MyQOpenGLWidget::calculateMatrix(){
                 cos(verticalAngle) * cos(horizontalAngle)
             );
 
-    right  = QVector3D(
+    right = QVector3D(
         sin(horizontalAngle - 3.14f/2.0f),
         0,
         cos(horizontalAngle - 3.14f/2.0f)
     );
 
     QVector3D up = QVector3D::crossProduct(right,direction);
-    QMatrix4x4 temp_matrixV;
-    temp_matrixV.lookAt(
+
+    direction.normalize();
+    right.normalize();
+    up.normalize();
+
+    matrixV.setToIdentity();
+    matrixV.lookAt(
         position,           // Позиция камеры
         position+direction, // Направление камеры
         up                  // Вектор "Вверх" камеры
     );
-    matrixV = temp_matrixV;
+}
+void MyQOpenGLWidget::mouseReleaseEvent(QMouseEvent * event){
+    diffX = 0.0f;
+    diffY = 0.0f;
 }
 
 void MyQOpenGLWidget::keyPressEvent(QKeyEvent *event){
@@ -243,79 +251,8 @@ void MyQOpenGLWidget::keyPressEvent(QKeyEvent *event){
     if (event->key() == Qt::Key_A){
         position -= right  * speed;
     }
-    update();
+    this->updateGL();
   }
-
-void MyQOpenGLWidget::checkX(){
-    axis='x';
-}
-void MyQOpenGLWidget::checkY(){
-      axis='y';
-}
-void MyQOpenGLWidget::checkZ(){
-        axis='z';
-}
-
-
-void MyQOpenGLWidget::rotatePos(){
-     if (axis=='x'){
-         matrixR.rotate(10.0,1.0,0.0,0.0);
-     } else
-     if (axis=='y'){
-         matrixR.rotate(10.0,0.0,1.0,0.0);
-     } else
-     if (axis=='z'){
-        matrixR.rotate(10.0,0.0,0.0,1.0);
-     }
-     this->updateGL();
-}
-
-void MyQOpenGLWidget::rotateNeg(){
-    if (axis=='x'){
-        matrixR.rotate(-10.0,1.0,0.0,0.0);
-    } else
-    if (axis=='y'){
-        matrixR.rotate(-10.0,0.0,1.0,0.0);
-    } else
-    if (axis=='z'){
-       matrixR.rotate(-10.0,0.0,0.0,1.0);
-    }
-
-    this->updateGL();
-}
-
-void MyQOpenGLWidget::decView(){
-    if (axis=='x'){
-       viewPoint.setX(viewPoint.x()+0.3);
-    } else
-    if (axis=='y'){
-        viewPoint.setY(viewPoint.y()+0.3);
-    } else
-    if (axis=='z'){
-        viewPoint.setZ(viewPoint.z()+0.3);
-    }
-
-    QMatrix4x4 temp_matrixV;
-    temp_matrixV.lookAt(viewPoint,QVector3D(0.0f,0.0f,0.0f),QVector3D(0.0f,1.0f,0.0f));
-    matrixV = temp_matrixV;
-    this->updateGL();
-}
-
-void MyQOpenGLWidget::incView(){
-    if (axis=='x'){
-       viewPoint.setX(viewPoint.x()-0.3);
-    } else
-    if (axis=='y'){
-        viewPoint.setY(viewPoint.y()-0.3);
-    } else
-    if (axis=='z'){
-        viewPoint.setZ(viewPoint.z()-0.3);
-    }
-    QMatrix4x4 temp_matrixV;
-    temp_matrixV.lookAt(viewPoint,QVector3D(0.0f,0.0f,0.0f),QVector3D(0.0f,1.0f,0.0f));
-    matrixV = temp_matrixV;
-    this->updateGL();
-}
 
 
 

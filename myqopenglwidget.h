@@ -36,7 +36,7 @@ private:
     QColor colors[14];
     GLuint element;
 
-    QVector3D viewPoint;
+    QVector3D lightSourse;
     bool movingEnabled;
     char axis;
     Umbrella *umbrella;
@@ -56,14 +56,6 @@ public:
 
 public slots:
 
-     void checkX();
-     void checkY();
-     void checkZ();
-     void rotatePos();
-     void rotateNeg();
-     void incView();
-     void decView();
-
 
 protected:
     void initializeGL();
@@ -72,6 +64,7 @@ protected:
     void mousePressEvent (QMouseEvent * event );
     void mouseMoveEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void mouseReleaseEvent(QMouseEvent * event);
     void render();
     void drawUmbrella();
 
