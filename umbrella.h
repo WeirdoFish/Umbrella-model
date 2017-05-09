@@ -4,6 +4,8 @@
 #include <GL/gl.h>
 #include <math.h>
 #include <vector>
+#include <QDebug>
+
 using std::vector;
 
 class Umbrella

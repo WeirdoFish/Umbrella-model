@@ -95,7 +95,7 @@ void  Umbrella::genRivet(Point center){
 
 void Umbrella::genWand(){
     Point center = Point(0,0,0.53);
-    float radius = 0.006;
+    float radius = 0.005;
     float theta = pi/4.0f;
     wand.clear();
 
@@ -107,8 +107,48 @@ void Umbrella::genWand(){
     for (float j = 0; j< 2.0f*pi; j+=2.0f*pi/(float)step){
         wand.push_back(getPoint(center,radius, theta, j));
     }
-
     int i = step;
+
+    while (wand[wand.size()-1].z>0.485){
+        Point nextPoint = Point();
+        nextPoint.z=wand[i].z - 0.0052;
+        nextPoint.y=wand[i].y;
+        nextPoint.x=wand[i].x;
+        wand.push_back(nextPoint);
+        i++;
+    }
+    i--;
+    wand.pop_back();
+
+//крепление к зонту
+    center = Point(0,0,0.474);
+    radius = 0.02;
+
+    for (float j = 0; j< 2.0f*pi; j+=2.0f*pi/(float)step){
+        wand.push_back(getPoint(center,radius, theta, j));
+    }
+    i+=step;
+
+    while (wand[wand.size()-1].z>0.473){
+        Point nextPoint = Point();
+        nextPoint.z=wand[i].z - 0.0052;
+        nextPoint.y=wand[i].y;
+        nextPoint.x=wand[i].x;
+
+        wand.push_back(nextPoint);
+        i++;
+    }
+    i--;
+    wand.pop_back();
+
+//палка
+    center = Point(0,0,0.473);
+    radius = 0.005;
+    for (float j = 0; j< 2.0f*pi; j+=2.0f*pi/(float)step){
+        wand.push_back(getPoint(center,radius, theta, j));
+    }
+    i+=step;
+
     while (wand[wand.size()-1].z>0.37){
         Point nextPoint = Point();
         nextPoint.z=wand[i].z - 0.0052;
@@ -120,6 +160,8 @@ void Umbrella::genWand(){
     }
     i--;
     wand.pop_back();
+
+
 
 //крепление 1
     center = Point(0,0,0.37);
@@ -200,6 +242,8 @@ void Umbrella::genWand(){
                         wand.push_back(nextPoint);
                         i++;
                     }
+                    i--;
+                    wand.pop_back();
 //ручка
                   center = Point(0,0,0.052);
                   radius = 0.011;
@@ -373,6 +417,18 @@ void Umbrella::initVectors(){
         for (int i = 0; i<(wand.size()-step); i++){
              wandIdx.push_back(i);
              wandIdx.push_back(i+step);
+             if (i==220){
+                 qDebug() << "f1" << wandIdx.size();
+             }
+             if (i==280){
+                 qDebug() << "f2" << wandIdx.size();
+             }
+             if (i==1980){
+                 qDebug() << "f3" << wandIdx.size();
+             }
+             if (i==2040){
+                 qDebug() << "f4" << wandIdx.size();
+             }
          }
 
 

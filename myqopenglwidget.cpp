@@ -118,7 +118,7 @@ void MyQOpenGLWidget::drawUmbrella(){
 //sticks
 
       //  m_program->setUniformValue("col", 0.2f, 0.1f, 0.0f, 1.0f);
-        m_program->setUniformValue("col", 0.89f, 0.8f, 0.8f, 1.0f);
+        m_program->setUniformValue("col", 0.49f, 0.4f, 0.4f, 1.0f);
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &stick[0]);
         glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &stickNormals[0]);
         glDrawElements(GL_TRIANGLE_STRIP,stickIdx.size(),GL_UNSIGNED_INT, &stickIdx[0]);
@@ -146,11 +146,43 @@ void MyQOpenGLWidget::drawUmbrella(){
 
    glEnableVertexAttribArray(m_normAttr);
    glEnableVertexAttribArray(m_posAttr);
-   m_program->setUniformValue("col", 0.7f, 0.7f, 0.8f, 1.0f);
+
+//палка цветастая
+//кончик
+   m_program->setUniformValue("col", 0.88f, 0.8f, 0.8f, 1.0f);
    glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &wand[0]);
    glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &wandNormals[0]);
-   glDrawElements(GL_TRIANGLE_STRIP,wandIdx.size(),GL_UNSIGNED_INT, &wandIdx[0]);
+   glDrawElements(GL_TRIANGLE_STRIP,81,GL_UNSIGNED_INT, &wandIdx[0]);
+
+   m_program->setUniformValue("col", 0.49f, 0.4f, 0.4f, 1.0f);
+   glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &wand[0]);
+   glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &wandNormals[0]);
+   glDrawElements(GL_TRIANGLE_STRIP,320,GL_UNSIGNED_INT, &wandIdx[81]);
+
+ //крепление к зонту
+   m_program->setUniformValue("col", 0.88f, 0.8f, 0.8f, 1.0f);
+   glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &wand[0]);
+   glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &wandNormals[0]);
+   glDrawElements(GL_TRIANGLE_STRIP,163,GL_UNSIGNED_INT, &wandIdx[399]);
+
+   m_program->setUniformValue("col", 0.49f, 0.4f, 0.4f, 1.0f);
+   glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &wand[0]);
+   glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &wandNormals[0]);
+   glDrawElements(GL_TRIANGLE_STRIP,3380,GL_UNSIGNED_INT, &wandIdx[562]);
+
+//крепление к ручке
+   m_program->setUniformValue("col", 0.88f, 0.8f, 0.8f, 1.0f);
+   glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &wand[0]);
+   glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &wandNormals[0]);
+   glDrawElements(GL_TRIANGLE_STRIP,139,GL_UNSIGNED_INT, &wandIdx[3942]);
+
+   m_program->setUniformValue("col", 0.49f, 0.4f, 0.4f, 1.0f);
+   glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &wand[0]);
+   glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &wandNormals[0]);
+   glDrawElements(GL_TRIANGLE_STRIP,923,GL_UNSIGNED_INT, &wandIdx[4077]);
+
    //glDrawArrays(GL_POINTS,0, wand.size()/3);
+
    glDisableVertexAttribArray(m_posAttr);
    glDisableVertexAttribArray(m_normAttr);
 
