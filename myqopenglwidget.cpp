@@ -33,7 +33,7 @@ MyQOpenGLWidget::MyQOpenGLWidget(QWidget *parent)  : QGLWidget(parent){
       colors[12] = QColor(112,10,170);
       colors[13] = QColor(204,0,114);
 
-      lightSourse = QVector3D(10.0,0.0,0.5);
+      lightSourse = QVector3D(0.0,0.4,0.4);
 }
 
 void MyQOpenGLWidget::paintGL(){
@@ -61,6 +61,7 @@ void MyQOpenGLWidget::render(){
     m_program->setUniformValue("matrixR", matrixR);
     m_program->setUniformValue("matrixS", matrixS);
     m_program->setUniformValue("matrixV", matrixV);
+    m_program->setUniformValue("lightCenter", lightSourse);
 
     //grass surface
 
@@ -74,8 +75,15 @@ void MyQOpenGLWidget::render(){
          glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
          glDisableVertexAttribArray(m_posAttr);
          matrixS.setToIdentity();
-
          m_program->setUniformValue("matrixS", matrixS);
+
+         glEnableVertexAttribArray(m_posAttr);
+         m_program->setUniformValue("col", 0.0f,0.0f, 0.0f, 1.0f);
+         float point[] = {lightSourse.x(), lightSourse.y(), lightSourse.z()};
+         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, point);
+         glDrawArrays(GL_POINTS, 0, 1);
+         glDisableVertexAttribArray(m_posAttr);
+
          drawUmbrella();
          m_program->release();
 }
@@ -283,6 +291,34 @@ void MyQOpenGLWidget::keyPressEvent(QKeyEvent *event){
     if (event->key() == Qt::Key_A){
         position -= right  * speed;
     }
+
+
+     //свет
+    if (event->key() == Qt::Key_Up){
+           lightSourse.setY(lightSourse.y()+0.2);
+    }
+
+     if (event->key() == Qt::Key_Down){
+           lightSourse.setY(lightSourse.y()-0.2);
+     }
+
+     if (event->key() == Qt::Key_Left){
+            lightSourse.setX(lightSourse.x()-0.2);
+     }
+
+     if (event->key() == Qt::Key_Right){
+           lightSourse.setX(lightSourse.x()+0.2);
+     }
+
+     if (event->key() == Qt::Key_Minus){
+            lightSourse.setZ(lightSourse.z()-0.2);
+     }
+
+     if (event->key() == Qt::Key_Plus){
+            lightSourse.setZ(lightSourse.z()+0.2);
+     }
+
+
     this->updateGL();
   }
 

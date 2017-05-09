@@ -8,9 +8,10 @@ attribute highp vec3 normAttr;
          varying highp vec3 curPos;
          varying highp vec3 n;
          varying highp vec3 l;
+         uniform highp vec3 lightCenter;
 
         void main() {
-            gl_PointSize =2.0;
+            gl_PointSize =15.0;
 
             highp vec4 worldPos=matrixT*matrixR*matrixS*vec4(posAttr, 1.0);
 
@@ -18,6 +19,6 @@ attribute highp vec3 normAttr;
 
             gl_Position=matrixP*matrixV*worldPos;
 
-            l = + vec3 (10.0,0.0,0.5) - worldPos.xyz;
+            l = + lightCenter - worldPos.xyz;
             n = (worldNorm.xyz);
 }
