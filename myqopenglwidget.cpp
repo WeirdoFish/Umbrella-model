@@ -9,10 +9,9 @@ MyQOpenGLWidget::MyQOpenGLWidget(QWidget *parent)  : QGLWidget(parent){
       setFocusPolicy(Qt::StrongFocus);
       matrixP.perspective(40.0f, 4.0f/3.0f, 0.1f, 100.0f);
       matrixT.translate(0.0, 0.0,0.0);
-      matrixR.rotate(0.0,0.0,0.0,0.0);
+      matrixR.rotate(30.0,1.0,0.0,0.0);
       matrixS.scale(1.0);
-      viewPoint = QVector3D(0.5f,0.5f,0.5f);
-      matrixV.lookAt(viewPoint,QVector3D(0.0f,0.0f,0.0f),QVector3D(0.0f,1.0f,0.0f));
+      viewPoint = QVector3D(2.0f,-1.5f,1.6f);
       movingEnabled=false;
       axis='x';
       umbrella = new Umbrella(9);
@@ -34,8 +33,10 @@ MyQOpenGLWidget::MyQOpenGLWidget(QWidget *parent)  : QGLWidget(parent){
 
 void MyQOpenGLWidget::paintGL(){
 
+    calculateMatrix();
     glEnable( GL_PROGRAM_POINT_SIZE );
-    glClearColor(0, 0.2, 0.2,1);
+   // glClearColor(0, 0.2, 0.2,1);
+     glClearColor(1, 1, 1,1);
     glClear(GL_COLOR_BUFFER_BIT);
     render();
 }
@@ -73,6 +74,7 @@ void MyQOpenGLWidget::render(){
          glDrawArrays(GL_LINE_STRIP, 7, 2);
          glDisableVertexAttribArray(m_posAttr);
 
+
          drawUmbrella();
          m_program->release();
 }
@@ -87,9 +89,11 @@ void MyQOpenGLWidget::drawUmbrella(){
 
     vector <GLfloat> slat = umbrella->getSlat();
     vector <int> slatIdx = umbrella->getSlatIdx();
+    vector<GLfloat> slatNormals= umbrella->getSlatNormals();
 
     vector <GLfloat> riv = umbrella->getRivet();
     vector <int> rivIdx = umbrella->getRivetIdx();
+    vector<GLfloat> rivNormals= umbrella->getRivetNormals();
 
     m_program->setUniformValue("col", 0.51f,0.78f, 0.6f, 1.0f);
 
@@ -112,30 +116,37 @@ void MyQOpenGLWidget::drawUmbrella(){
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &stick[0]);
         glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &stickNormals[0]);
         glDrawElements(GL_TRIANGLE_STRIP,stickIdx.size(),GL_UNSIGNED_INT, &stickIdx[0]);
-        glDisableVertexAttribArray(m_normAttr);
+
 
 //slats
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &slat[0]);
+        glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &slatNormals[0]);
         glDrawElements(GL_TRIANGLE_STRIP,slatIdx.size(),GL_UNSIGNED_INT, &slatIdx[0]);
 
 //rivets
         m_program->setUniformValue("col", 0.99f, 0.86f, 0.45f, 1.0f);
         glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &riv[0]);
+        glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &rivNormals[0]);
         glDrawElements(GL_TRIANGLE_STRIP,rivIdx.size(),GL_UNSIGNED_INT, &rivIdx[0]);
 
         glDisableVertexAttribArray(m_posAttr);
+        glDisableVertexAttribArray(m_normAttr);
 
   }
 
    vector <GLfloat> wand = umbrella->getWand();
    vector <int> wandIdx = umbrella->getWandIdx();
+   vector<GLfloat> wandNormals= umbrella->getWandNormals();
 
+   glEnableVertexAttribArray(m_normAttr);
    glEnableVertexAttribArray(m_posAttr);
-   m_program->setUniformValue("col", 0.2f, 0.1f, 0.0f, 1.0f);
+   m_program->setUniformValue("col", 0.7f, 0.7f, 0.8f, 1.0f);
    glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &wand[0]);
+   glVertexAttribPointer(m_normAttr, 3, GL_FLOAT, GL_FALSE, 0, &wandNormals[0]);
    glDrawElements(GL_TRIANGLE_STRIP,wandIdx.size(),GL_UNSIGNED_INT, &wandIdx[0]);
    //glDrawArrays(GL_POINTS,0, wand.size()/3);
    glDisableVertexAttribArray(m_posAttr);
+   glDisableVertexAttribArray(m_normAttr);
 
 }
 
@@ -174,20 +185,65 @@ void MyQOpenGLWidget::mousePressEvent ( QMouseEvent * event ){
 }
 
 void MyQOpenGLWidget::mouseMoveEvent(QMouseEvent *event){
-    setMouseTracking(true);
+    event->globalX();
     double curX = (event->x()-350)/350.0;
     double curY = -(event->y()-350)/350.0;
-   /* if (movingEnabled){
-        matrixR.rotate(0.1,0.0,1.0,0.0);
-        this->updateGL();
-    } */
+    if (event->buttons()==Qt::LeftButton){
+        diffX = - prevX + event->x();
+        diffY = prevY - event->y();
+        prevX = event->x();
+        prevY = event->y();
+
+        update();
+    }
 
   }
 
+void MyQOpenGLWidget::calculateMatrix(){
+
+    horizontalAngle += 0.01*float( diffX );
+    verticalAngle   += 0.01*float( diffY );
+
+    direction = QVector3D(
+                cos(verticalAngle) * sin(horizontalAngle),
+                sin(verticalAngle),
+                cos(verticalAngle) * cos(horizontalAngle)
+            );
+
+    right  = QVector3D(
+        sin(horizontalAngle - 3.14f/2.0f),
+        0,
+        cos(horizontalAngle - 3.14f/2.0f)
+    );
+
+    QVector3D up = QVector3D::crossProduct(right,direction);
+    QMatrix4x4 temp_matrixV;
+    temp_matrixV.lookAt(
+        position,           // Позиция камеры
+        position+direction, // Направление камеры
+        up                  // Вектор "Вверх" камеры
+    );
+    matrixV = temp_matrixV;
+}
 
 void MyQOpenGLWidget::keyPressEvent(QKeyEvent *event){
 
-    //    this->updateGL();
+    if (event->key() == Qt::Key_W){
+        position += direction * speed;
+    }
+    // Движение назад
+    if (event->key() == Qt::Key_S){
+        position -= direction  * speed;
+    }
+    // Стрэйф вправо
+    if (event->key() == Qt::Key_D){
+        position += right  * speed;
+    }
+    // Стрэйф влево
+    if (event->key() == Qt::Key_A){
+        position -= right  * speed;
+    }
+    update();
   }
 
 void MyQOpenGLWidget::checkX(){
@@ -230,13 +286,13 @@ void MyQOpenGLWidget::rotateNeg(){
 
 void MyQOpenGLWidget::decView(){
     if (axis=='x'){
-       viewPoint.setX(viewPoint.x()+0.6);
+       viewPoint.setX(viewPoint.x()+0.3);
     } else
     if (axis=='y'){
-        viewPoint.setY(viewPoint.y()+0.6);
+        viewPoint.setY(viewPoint.y()+0.3);
     } else
     if (axis=='z'){
-        viewPoint.setZ(viewPoint.z()+0.6);
+        viewPoint.setZ(viewPoint.z()+0.3);
     }
 
     QMatrix4x4 temp_matrixV;
@@ -247,13 +303,13 @@ void MyQOpenGLWidget::decView(){
 
 void MyQOpenGLWidget::incView(){
     if (axis=='x'){
-       viewPoint.setX(viewPoint.x()-0.6);
+       viewPoint.setX(viewPoint.x()-0.3);
     } else
     if (axis=='y'){
-        viewPoint.setY(viewPoint.y()-0.6);
+        viewPoint.setY(viewPoint.y()-0.3);
     } else
     if (axis=='z'){
-        viewPoint.setZ(viewPoint.z()-0.6);
+        viewPoint.setZ(viewPoint.z()-0.3);
     }
     QMatrix4x4 temp_matrixV;
     temp_matrixV.lookAt(viewPoint,QVector3D(0.0f,0.0f,0.0f),QVector3D(0.0f,1.0f,0.0f));

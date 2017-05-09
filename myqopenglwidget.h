@@ -40,6 +40,16 @@ private:
     bool movingEnabled;
     char axis;
     Umbrella *umbrella;
+    void calculateMatrix();
+    double diffX;
+    double diffY;
+    int prevX, prevY;
+    float horizontalAngle = 3.14f;
+    // вертикальный угол
+    float verticalAngle = 0.0f;
+    QVector3D right,direction,position;
+    float speed = 0.01f;
+
 
 public:
      MyQOpenGLWidget(QWidget *parent=0);

@@ -39,7 +39,7 @@ void Umbrella::genSector(){
    genStick(sector[0]);
    //genRivet(sector[0]);
 
-   while (i<140 && last.x>=0){
+   while (last.x>0){
        Point nextPoint = Point();
        if (i%2!=0) {
            nextPoint.z=sector[i].z + pow(sector[i-1].x,2)/8.0;
@@ -57,6 +57,7 @@ void Umbrella::genSector(){
        i++;
        last = nextPoint;
    }
+  sector.pop_back();
 
 }
 
@@ -67,6 +68,8 @@ void  Umbrella::genRivet(Point center){
     float radius = 0.0025;
     float theta = pi/4.0f;
     rivet.clear();
+
+
 
     for (float j = 0; j< 2.0f*pi; j+=2.0f*pi/(float)step){
         rivet.push_back(getPoint(center,radius, theta, j));
@@ -82,6 +85,12 @@ void  Umbrella::genRivet(Point center){
         rivet.push_back(nextPoint);
         i++;
     }
+    int n = rivet.size()-step;
+
+    for (int i =0; i<step; i++){
+            rivet.push_back(center);
+            rivet.push_back(rivet[n+i]);
+    }
 }
 
 void Umbrella::genWand(){
@@ -90,6 +99,11 @@ void Umbrella::genWand(){
     float theta = pi/4.0f;
     wand.clear();
 
+   // wand.push_back(center);
+  /*  for (float j = 0; j< 2.0f*pi; j+=2.0f*pi/(float)step){
+        wand.push_back(getPoint(center,radius/0.5, theta, j));
+     }
+*/
     for (float j = 0; j< 2.0f*pi; j+=2.0f*pi/(float)step){
         wand.push_back(getPoint(center,radius, theta, j));
     }
@@ -104,6 +118,7 @@ void Umbrella::genWand(){
         wand.push_back(nextPoint);
         i++;
     }
+  //  wand.pop_back();
 
 //крепление 1
     center = Point(0,0,0.37);
@@ -123,6 +138,7 @@ void Umbrella::genWand(){
             wand.push_back(nextPoint);
             i++;
         }
+        // wand.pop_back();
 //крепление 2
       center = Point(0,0,0.35);
         radius = 0.008;
@@ -141,6 +157,7 @@ void Umbrella::genWand(){
                 wand.push_back(nextPoint);
                 i++;
             }
+            // wand.pop_back();
 //палка дальше
             center = Point(0,0,0.32);
             radius = 0.005;
@@ -159,6 +176,7 @@ void Umbrella::genWand(){
                     wand.push_back(nextPoint);
                     i++;
                 }
+                // wand.pop_back();
 
 //ещё палка
                 center = Point(0,0,0.06);
@@ -209,53 +227,12 @@ void Umbrella::genWand(){
                         radius = center.length(wand[i]);
                         nextPoint.x= center.x +radius*cos(j);
                         nextPoint.z= center.z +radius*sin(j);
-                      /*if ( j<pi){
-                          nextPoint.x= wand[i].x + center.x +radius*cos(j);
-                          nextPoint.z= wand[i].z - center.z +radius*sin(j);
-                      }
-                      else {
-                          nextPoint.x= wand[i].x + center.x +radius*cos(j);
-                          nextPoint.z= wand[i].z + center.z +radius*sin(j);
-                      }*/
-                      nextPoint.y = wand[i].y;
-                      wand.push_back(nextPoint);
-                      i++;
+                        nextPoint.y = wand[i].y;
+                        wand.push_back(nextPoint);
+                        i++;
                     }
                 }
-/*
-                 while (wand[wand.size()-1].z>-0.02){
-                      Point nextPoint = Point();
-                      nextPoint.z= wand[i].z - pow(wand[i].x,2);
-                      nextPoint.y=wand[i].y;
-                      nextPoint.x=wand[i].x + 0.004;
 
-                      wand.push_back(nextPoint);
-                      i++;
-                }
-
-                          /*
-                       center = Point(0,-0.025,0);
-                       for (float j = 0; j< 2.0f*pi; j+=2.0f*pi/(float)step){
-                           wand.push_back(getPoint(center,radius, theta, j));
-                       }
-
-                       int c = i;
-                       while (i<c+100){
-                           for (int j = 0; j<step; j++){
-                               Point nextPoint = Point();
-                               nextPoint.z=wand[i].z - 0.0052;
-                               nextPoint.y=wand[i].y;
-                               nextPoint.x=wand[i].x;
-
-                               wand.push_back(nextPoint);
-
-                               wand[i].x = cos(10)*wand[i].x + sin(10)*wand[i].z;
-                               wand[i].z = sin(10)*wand[i].x + cos(10)*wand[i].y;
-                              // wand[i].y+=0.025;
-                               i++;
-                           }
-                       }
-                       */
 }
 
 void  Umbrella::genStick(Point center){
@@ -322,6 +299,7 @@ vector <GLfloat> Umbrella::getSecNormals() { return secNorm; }
 vector <GLfloat> Umbrella::getSlatNormals() { return slatNorm; }
 vector <GLfloat> Umbrella::getRivetNormals() { return rivNorm; }
 vector <GLfloat> Umbrella::getWandNormals() { return wandNorm; }
+vector <GLfloat> Umbrella::getStickNormals() { return stickNorm; }
 
 void Umbrella::initVectors(){
  //slat
@@ -367,20 +345,28 @@ void Umbrella::initVectors(){
 
 
 //цфтв
-        for (Point p : wand) {
+     for (Point p : wand) {
              wandPts.push_back(p.x);
              wandPts.push_back(p.y);
              wandPts.push_back(p.z);
           }
-
+/*
+        for (int i = 1; i<step; i+=1){
+            wandIdx.push_back(0);
+            wandIdx.push_back(i);
+        }
+*/
         for (int i = 0; i<(wand.size()-step); i++){
              wandIdx.push_back(i);
              wandIdx.push_back(i+step);
          }
 
+
+
 }
 
 void Umbrella::initNorms(){
+//sec
     for (int i = 1; i< sector.size()-1; i++){
          Point a,b;
         if (i%2==0){
@@ -400,7 +386,7 @@ void Umbrella::initNorms(){
         secNorm.push_back(n.z);
        // std::cout << n.x << ":" << n.y << ":" << n.z << "\n";
     }
-
+//stick
     for (int i = 0; i< stickIdx.size()-1; i+=2){
         Point a,b;
         int cur = stickIdx[i];
@@ -422,8 +408,78 @@ void Umbrella::initNorms(){
     for (int i = k  - step*3; i<k; i++){
          stickNorm.push_back(stickNorm[i]);
     }
+// rive
 
-std::cout <<"";
+    for (int i = 0; i< rivetIdx.size()-1; i+=2){
+        Point a,b;
+        int cur = rivetIdx[i];
+
+        a = Point (rivet[cur].x-rivet[cur+1].x, rivet[cur].y-rivet[cur+1].y, rivet[cur].z-rivet[cur+1].z);
+        b = Point (rivet[cur].x-rivet[cur+2].x, rivet[cur].y-rivet[cur+2].y, rivet[cur].z-rivet[cur+2].z);
+
+        Point n = Point (a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
+        float length = sqrt(pow(n.x,2)+pow(n.y,2) + pow(n.z,2));
+        n.x /= length;
+        n.y /= length;
+        n.z /= length;
+        rivNorm.push_back(n.x);
+        rivNorm.push_back(n.y);
+        rivNorm.push_back(n.z);
+       // std::cout << n.x << ":" << n.y << ":" << n.z << "\n";
+    }
+    k = rivNorm.size();
+    for (int i = k  - step*3; i<k; i++){
+         rivNorm.push_back(rivNorm[i]);
+    }
+//wand
+    for (int i = 0; i< wandIdx.size()-1; i+=2){
+        Point a,b;
+        int cur = wandIdx[i];
+      /*  if (i==0){
+            cur = 1;
+            i+=38;
+        }*/
+        a = Point (wand[cur].x-wand[cur+1].x, wand[cur].y-wand[cur+1].y, wand[cur].z-wand[cur+1].z);
+        b = Point (wand[cur].x-wand[cur+2].x, wand[cur].y-wand[cur+2].y, wand[cur].z-wand[cur+2].z);
+
+        Point n = Point (a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
+        float length = sqrt(pow(n.x,2)+pow(n.y,2) + pow(n.z,2));
+        n.x /= length;
+        n.y /= length;
+        n.z /= length;
+        wandNorm.push_back(n.x);
+        wandNorm.push_back(n.y);
+        wandNorm.push_back(n.z);
+    }
+    k = wandNorm.size();
+    for (int i = k  - step*3; i<k; i++){
+         wandNorm.push_back(wandNorm[i]);
+    }
+
+ //slat
+
+    for (int i = 0; i< slatIdx.size()-1; i+=2){
+        Point a,b;
+        int cur = slatIdx[i];
+
+        a = Point (slat[cur].x-slat[cur+1].x, slat[cur].y-slat[cur+1].y, slat[cur].z-slat[cur+1].z);
+        b = Point (slat[cur].x-slat[cur+2].x, slat[cur].y-slat[cur+2].y, slat[cur].z-slat[cur+2].z);
+
+        Point n = Point (a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
+        float length = sqrt(pow(n.x,2)+pow(n.y,2) + pow(n.z,2));
+        n.x /= length;
+        n.y /= length;
+        n.z /= length;
+        slatNorm.push_back(n.x);
+        slatNorm.push_back(n.y);
+        slatNorm.push_back(n.z);
+       // std::cout << n.x << ":" << n.y << ":" << n.z << "\n";
+    }
+    k = slatNorm.size();
+    for (int i = k  - step*3; i<k; i++){
+         slatNorm.push_back(slatNorm[i]);
+    }
+
 }
 
 
